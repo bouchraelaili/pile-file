@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Linked List</title>
+    <script type="text/javascript">
+        class LinkedList {
+    constructor() {
+        this.index = -1;
+        this.first = null;
+        this.last = null;
+    }
+
+    addToFirst(data) {
+        if (!this.first) {
+            this.first = this.last = new Node(data);
+            this.first.index = this.last.index = 0;
+            this.index++;
+            return;
+        }
+        let oldFirst = this.first;
+        this.first = new Node(data);
+        this.first.next = oldFirst;
+        oldFirst.prev = this.first;
+        this.index++;
+
+        this.first.index = 0;
+        let currentNode = this.first;
+        while (currentNode) {
+            currentNode = currentNode.next;
+            if (currentNode) currentNode.index += 1;
+        }
+
+
+
+    }
+    addToLast(data) {
+        if (!this.last) {
+            this.last = this.first = new Node(data);
+            this.index++;
+            this.first.index = this.last.index = this.index;
+            return;
+        }
+        let oldLast = this.last;
+        this.last = new Node(data);
+        this.last.prev = oldLast;
+        oldLast.next = this.last;
+        this.index++;
+        this.last.index = this.index;
+    }
+
+    listAsc() {
+        if (this.getSize() === 0)
+            return;
+
+        let rows = "";
+        let currentNode = this.first;
+        while (currentNode) {
+            rows += "<tr>"
+            rows += "<td>" + currentNode.index + "</td><td>" + currentNode.data + "</td>";
+            rows += "</tr>";
+            currentNode = currentNode.next;
+        }
+        return rows;
+    }
+    listDesc() {
+        if (this.getSize() === 0)
+            return;
+
+        let rows = "";
+        let currentNode = this.last;
+        while (currentNode) {
+            rows += "<tr>"
+            rows += "<td>" + currentNode.index + "</td><td>" + currentNode.data + "</td>";
+            rows += "</tr>";
+            currentNode = currentNode.prev;
+        }
+        return rows;
+    }
+
+    searchByIndex(index) {
+        if (this.index === -1 || index > this.index) return;
+        let currentNode = this.first;
+        let rows = "";
+        while (currentNode) {
+            if (index === currentNode.index) {
+                rows += "<tr>"
+                rows += "<td>" + currentNode.index + "</td><td>" + currentNode.data + "</td>";
+                rows += "</tr>";
+            }
+            currentNode = currentNode.next;
+        }
+        return rows;
+    }
+
+    clear() {
+        this.first = this.last = null;
+    }
+
+    deleteFirst() {
+        if (!this.first) {
+            return;
+        }
+        if (this.first === this.last) {
+            this.first = this.last = null;
+            return;
+        }
+        let removedFirst = this.first;
+        this.first = removedFirst.next;
+        this.first.prev = null;
+        this.index--;
+
+        this.first.index = 0;
+        let currentNode = this.first;
+        while (currentNode) {
+            currentNode = currentNode.next;
+            if (currentNode) currentNode.index -= 1;
+        }
+    }
+
+    deleteLast() {
+        if (!this.last) {
+            return;
+        }
+        if (this.first === this.last) {
+            this.first = this.last = null;
+            return;
+        }
+        let removedLast = this.last;
+        this.last = removedLast.prev;
+        this.last.next = null;
+        this.index--;
+        this.last.index = this.index;
+    }
+
+    addByIndex(data, index) {
+        if (index > this.getSize() || index < 0) {
+            return;
+        }
+        if (index === this.getSize()) {
+            this.addToLast(data);
+        } else if (index === 0) {
+            addToFirst(data);
+        } else {
+            let currentNode = this.first;
+            while (currentNode) {
+                if (index === currentNode.index) {
+                    this.index++;
+                    let temp = currentNode;
+                    temp.prev.next = temp.prev = currentNode = new Node(data, temp, temp.prev, index);
+                    while (temp) {
+                        temp.index += 1;
+                        temp = temp.next;
+                    }
+                }
+                currentNode = currentNode.next;
+            }
+        }
+    }
+
+
+    removeByIndex(index) {
+        if (index > this.getSize() - 1 || index < 0) {
+            return;
+        }
+        if (index === this.getSize() - 1) {
+            this.removedLast()
+        } else if (index === 0) {
+            this.removedFirst();
+        } else {
+            let currentNode = this.first;
+            while (currentNode) {
+                if (index === currentNode.index) {
+                    this.index--;
+                    let temp = currentNode.next;
+                    currentNode.prev.next = currentNode.next;
+                    currentNode.next.prev = currentNode.prev;
+                    currentNode.prev = currentNode.next = null;
+                    while (temp) {
+                        temp.index -= 1;
+                        temp = temp.next;
+                    }
+                }
+                currentNode = currentNode.next;
+            }
+        }
+    }
+
+
+    getSize() {
+        return this.index + 1;
+    }
+}
+
+class Node {
+    constructor(data, next, prev, index) {
+        this.data = data;
+        this.next = next || null;
+        this.prev = prev || null;
+        this.index = index || null;
+    }
+}
+
+let list = new LinkedList();
+
+function addAsFirst() {
+    list.addToFirst(document.getElementById("data").value);
+    showAllAsc();
+}
+
+function addAsLast() {
+    list.addToLast(document.getElementById("data").value);
+    showAllAsc();
+}
+
+function showAllAsc() {
+    document.getElementById("table").innerHTML = " <tr><th>Index</th><th>Data</th></tr>";
+    document.getElementById("table").innerHTML += list.listAsc();
+}
+
+function showAllDesc() {
+    document.getElementById("table").innerHTML = " <tr><th>Index</th><th>Data</th></tr>";
+    document.getElementById("table").innerHTML += list.listDesc();
+}
+
+function addByIndex() {
+    list.addByIndex(document.getElementById("data").value, +document.getElementById("index").value);
+    showAllAsc();
+}
+
+function removeByIndex() {
+    list.removeByIndex(+document.getElementById("index").value);
+    showAllAsc();
+}
+
+function searchByIndex() {
+    document.getElementById("table").innerHTML = " <tr><th>Index</th><th>Data</th></tr>";
+    document.getElementById("table").innerHTML += list.searchByIndex(+document.getElementById("index").value);
+}
+    </script>
+
+
+
+
+
+
+<style type="text/css">
+     input[type=text]{
+       
+        width: 48%;
+        height: 20px;
+        margin-bottom:2%;
+        margin-top: 8%;
+        border-top-style: hidden;
+        border-left-style: hidden;
+        border-right-style: hidden;
+        border-bottom-style:groove;
+        border-color:#dcdde1;
+        font-size: 16px;
+        outline: none;
+       }
+      
+       button{
+            background-color:#273c75;border-radius:4px;width: 150px;height: 40px;border:none;color: white;margin: 6%; 
+
+        }
+            button:hover { background-color: #1D1E1E;
+        }
+      
+        table{
+             border-collapse: collapse;
+             border-color: white;
+             text-align: center;
+             width: 700px;
+        }
+       
+        th{
+            background-color: white;
+            color:#273c75;
+            font-size: 16px;
+        }
+        body{
+            background-color:#273c75;
+        }
+         h1{
+            color: white;
+            font-family: poppins, Charcoal, sans-serif;
+           padding-top: 1%;
+</style>
+
+
+
+
+
+</head>
+
+
+<body>
+<center>
+    <h1>LINKED LIST</h1>
+    <div class="controller" style=" width:700px;background-color: white;height: 1300px;margin:1%;border-radius: 2%;padding-top: 0%;">
+        <div style="margin: 12%">
+            <input type="text" id="data" placeholder="insert data "><br>
+            <button onclick="addAsFirst()">Add As First</button>
+            <button onclick="addAsLast()">Add As Last</button>
+            <button onclick="list.deleteFirst(); showAllAsc();">Remove First</button>
+            <button onclick="list.deleteLast(); showAllAsc();">Remove Last</button>
+            <button onclick="showAllAsc()">Show All</button>
+            <button onclick="showAllDesc()">Show All Reversed</button>
+            <button onclick="list.clear(); showAllAsc()">Clear</button>
+        </div>
+      
+        <div>
+            <input type="text" id="index" placeholder="insert by index "><br>
+            <button onclick="removeByIndex()">Remove By Index</button>
+            <button onclick="searchByIndex()">Search By Index</button>
+        </div>   
+           <table id="table">
+        <tr>
+            <th>Index</th>
+            <th>Data</th>
+        </tr>
+    </table>
+</div>
+
+  
+
+</center>
+</body>
+
+</html>
